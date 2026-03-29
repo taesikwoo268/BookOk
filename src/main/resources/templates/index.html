@@ -8,19 +8,25 @@
 <body class="container mt-5">
 <h2 class="mb-4">Danh sách sách</h2>
 
-<table class="table table-bordered table-hover">
-    <thead class="table-dark">
+<table border="1">
+    <thead>
     <tr>
         <th>ID</th>
         <th>Tiêu đề</th>
         <th>Tác giả</th>
+        <th>Thể loại</th> <th>Hành động</th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="book : ${books}">
-        <td th:text="${book.id}">1</td>
-        <td th:text="${book.title}">Tiêu đề mẫu</td>
-        <td th:text="${book.author}">Tác giả mẫu</td>
+        <td th:text="${book.id}"></td>
+        <td th:text="${book.title}"></td>
+        <td th:text="${book.author}"></td>
+        <td th:text="${book.categoryName}"></td> <td>
+        <a th:href="@{/web/books/edit/{id}(id=${book.id})}">Sửa</a> |
+        <a th:href="@{/web/books/delete/{id}(id=${book.id})}"
+           onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
+    </td>
     </tr>
     </tbody>
 </table>
