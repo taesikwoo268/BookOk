@@ -1,24 +1,50 @@
-<nav th:fragment="header" class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-    <div class="container">
-        <a class="navbar-brand" th:href="@{/web/books}">📚 BookOk UET</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link" th:href="@{/web/books}">Trang chủ</a></li>
-                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" th:href="@{/web/books/add}">Thêm sách</a>
-                </li>
-            </ul>
-            <div class="navbar-nav">
-                <span class="nav-link text-light me-3" sec:authorize="isAuthenticated()">
-                    Chào, <strong sec:authentication="name">User</strong>
+<nav th:fragment="header" class="navbar navbar-expand-lg navbar-dark" style="background-color: #ee4d2d;"
+     xmlns:sec="http://www.w3.org/1999/xhtml">
+    <div class="container d-flex flex-column">
+        <div class="w-100 d-flex justify-content-between small mb-2">
+            <div class="text-white"></div>
+            <div class="text-white">
+                <span sec:authorize="!isAuthenticated()">
+                    <a th:href="@{/login}" class="text-white text-decoration-none">Đăng nhập</a> |
+                    <a href="#" class="text-white text-decoration-none">Đăng ký</a>
                 </span>
-                <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()">
-                    <button class="btn btn-outline-danger btn-sm" type="submit">Đăng xuất</button>
-                </form>
-                <a class="btn btn-primary btn-sm" th:href="@{/login}" sec:authorize="!isAuthenticated()">Đăng nhập</a>
+                <span sec:authorize="isAuthenticated()" class="dropdown">
+                    <a href="#" class="text-white text-decoration-none dropdown-toggle"
+                        id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <strong sec:authentication="name">User</strong>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" href="#">Thông tin tài khoản</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form th:action="@{/logout}" method="post">
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </span>
+            </div>
+        </div>
+
+        <div class="w-100 d-flex align-items-center pb-2">
+            <a class="navbar-brand fs-3 fw-bold me-4" th:href="@{/web/books}">BookOk</a>
+
+            <form class="flex-grow-1 d-flex bg-white rounded p-1" th:action="@{/web/books}" method="get">
+                <input class="form-control border-0 shadow-none" type="search" name="keyword"
+                       th:value="${keyword}" placeholder="Tìm trong Nhà Sách Online">
+                <button class="btn btn-danger px-4" type="submit" style="background-color: #fb5533;">
+                    <i class="bi bi-search"></i> Tìm kiếm
+                </button>
+            </form>
+
+            <div class="ms-4 position-relative">
+                <a href="#" class="text-white fs-4"><i class="bi bi-cart3"></i></a>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-white text-danger" style="font-size: 0.6rem;">
+                    0
+                </span>
             </div>
         </div>
     </div>
