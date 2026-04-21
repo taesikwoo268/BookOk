@@ -1,10 +1,9 @@
 package com.example.bookok.controller;
 
-import com.example.bookok.model.Book;
-import com.example.bookok.model.ResponseObject;
+import com.example.bookok.dto.BookDTO;
+
 import com.example.bookok.service.BookService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,33 +12,38 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/books")
 public class BookController {
-    private final BookService bookService;
+    @Autowired
+    private BookService bookService;
 
-    public BookController(BookService bookService) {
-        this.bookService = bookService;
-    }
+//    @GetMapping
+//    public List<BookDTO> getAllBooks() {
+//        return bookService.getAllBooks();
+//    }
 
     @GetMapping
-    public ResponseEntity<ResponseObject> getAll() {
-        List<Book> list = bookService.getAllBooks();
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("ok", "Truy vấn danh sách thành công", list)
-        );
+    public List<BookDTO> getAllBooks(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Long minPrice,
+            @RequestParam(required = false) Long maxPrice,
+            @RequestParam(required = false) List<String> categories,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        return bookService.getAllBooksPaged(keyword, minPrice, maxPrice, categories, page, size).getContent();
     }
 
     @PostMapping
-    public ResponseEntity<ResponseObject> create(@RequestBody Book book) {
-        String msg = bookService.createBook(book);
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                new ResponseObject("ok", msg, book)
-        );
+    public void createBook(@RequestBody BookDTO bookDTO) {
+        bookService.createBook(bookDTO);
     }
+
     @DeleteMapping("/{id}")
-    public int deleteById(@PathVariable Long id) {
-        return bookService.deleteById(id);
+    public void deleteById(@PathVariable Long id) {
+        bookService.deleteById(id);
     }
+
     @PutMapping("/{id}")
-    public String update(@PathVariable Long id, @RequestBody Book book) {
-        return bookService.updateBook(id,book);
+    public void updateBook(@PathVariable Long id, @RequestBody BookDTO bookDTO) {
+        bookService.updateBook(id, bookDTO);
     }
 }
