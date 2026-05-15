@@ -16,20 +16,20 @@ public class CartService {
     @Autowired private BookRepository bookRepository;
 
     @Transactional
-    public void addToCart(UserEntity user, Long bookId) {
+    public void addToCart(UserEntity user, int quantity, Long bookId) {
         BookEntity book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
 
         CartItem item = cartItemRepository.findByUserAndBook(user, book);
         if (item!=null) {
-            item.setQuantity(item.getQuantity() + 1);
+            item.setQuantity(item.getQuantity() + quantity);
             cartItemRepository.save(item);
         }
         else {
             CartItem newItem = new CartItem();
             newItem.setUser(user);
             newItem.setBook(book);
-            newItem.setQuantity(1);
+            newItem.setQuantity(quantity);
             cartItemRepository.save(newItem);
         }
     }
@@ -64,5 +64,16 @@ public class CartService {
     @Transactional
     public void removeItem(Long cartItemId) {
         cartItemRepository.deleteById(cartItemId);
+    }
+
+    public Long calculateCartTotal(UserEntity user) {
+        List<CartItemDTO> items = toCartItemsDTO(user);
+        Long sum = 0L;
+        for (CartItemDTO item: items) {
+            if (item.getTotalLinePrice() != null) {
+                sum += item.getTotalLinePrice();
+            }
+        }
+        return sum;
     }
 }

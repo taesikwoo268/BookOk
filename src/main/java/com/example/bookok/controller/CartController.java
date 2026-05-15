@@ -27,10 +27,12 @@ public class CartController {
     }
 
     // Thêm vào giỏ
-    @PostMapping("/add/{bookId}")
-    public String addToCart(@PathVariable Long bookId, Principal principal) {
+    @PostMapping("/add")
+    public String addToCart(@RequestParam Long bookId,
+                            @RequestParam(defaultValue = "1") int quantity,
+                            Principal principal) {
         UserEntity user = userRepository.findByUsername(principal.getName()).orElseThrow();
-        cartService.addToCart(user, bookId);
+        cartService.addToCart(user, quantity, bookId);
         return "Added to cart successfully!";
     }
 
@@ -39,5 +41,10 @@ public class CartController {
     public String removeItem(@PathVariable Long itemId) {
         cartService.removeItem(itemId);
         return "Item removed!";
+    }
+    @GetMapping("/total")
+    public Long getCartTotal(Principal principal) {
+        UserEntity user = userRepository.findByUsername(principal.getName()).orElseThrow();
+        return cartService.calculateCartTotal(user);
     }
 }

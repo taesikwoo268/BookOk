@@ -1,51 +1,64 @@
-<nav th:fragment="header" class="navbar navbar-expand-lg navbar-dark" style="background-color: #ee4d2d;"
-     xmlns:sec="http://www.w3.org/1999/xhtml">
-    <div class="container d-flex flex-column">
-        <div class="w-100 d-flex justify-content-between small mb-2">
-            <div class="text-white"></div>
-            <div class="text-white">
-                <span sec:authorize="!isAuthenticated()">
-                    <a th:href="@{/login}" class="text-white text-decoration-none">Đăng nhập</a> |
-                    <a href="#" class="text-white text-decoration-none">Đăng ký</a>
-                </span>
-                <span sec:authorize="isAuthenticated()" class="dropdown">
-                    <a href="#" class="text-white text-decoration-none dropdown-toggle"
-                        id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <strong sec:authentication="name">User</strong>
-                    </a>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+</head>
+<body>
+<header th:fragment="header" class="navbar-shopee shadow-sm">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center w-100">
+            <!-- Logo -->
+            <a class="navbar-brand d-flex align-items-center" th:href="@{/web/books}">
+                <i class="bi bi-bag-check-fill me-2"></i>
+                <span>BookOk</span>
+            </a>
 
-                    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
-                        <li><a class="dropdown-item" href="#">Thông tin tài khoản</a></li>
-                            <li><hr class="dropdown-divider"></li>
+            <!-- Thanh tìm kiếm -->
+            <div class="flex-grow-1 mx-4">
+                <form th:action="@{/web/books}" method="get" class="input-group">
+                    <input type="text" name="keyword" th:value="${keyword}" class="form-control border-0" placeholder="Tìm trong Nhà Sách Online">
+                    <button class="btn btn-shopee px-4" type="submit">
+                        <i class="bi bi-search"></i> <span class="d-none d-md-inline">Tìm kiếm</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Icon Giỏ hàng và User -->
+            <div class="d-flex align-items-center">
+                <!-- ICON GIỎ HÀNG (ĐÃ GẮN LINK) -->
+                <div class="me-4">
+                    <a th:href="@{/web/cart}" class="text-white position-relative" style="text-decoration: none;">
+                        <i class="bi bi-cart3" style="font-size: 2rem;"></i>
+                        <!-- Badge số lượng: Hiện số nếu cartCount > 0 -->
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-white text-danger"
+                              style="font-size: 0.7rem;"
+                              th:if="${cartCount != null && cartCount > 0}"
+                              th:text="${cartCount}">0</span>
+                    </a>
+                </div>
+
+                <!-- Thông tin người dùng -->
+                <div class="dropdown text-white" sec:authorize="isAuthenticated()">
+                    <a href="#" class="d-block link-light text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span sec:authentication="name" class="small">User</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end text-small shadow">
+                        <li><a class="dropdown-menu-item p-2 text-dark text-decoration-none d-block" href="#">Hồ sơ</a></li>
+                        <li><a class="dropdown-menu-item p-2 text-dark text-decoration-none d-block" th:href="@{/web/cart}">Đơn mua</a></li>
+                        <li><hr class="dropdown-divider"></li>
                         <li>
                             <form th:action="@{/logout}" method="post">
-                                <button type="submit" class="dropdown-item text-danger">
-                                    <i class="bi bi-box-arrow-right"></i> Đăng xuất
-                                </button>
+                                <button type="submit" class="dropdown-item">Đăng xuất</button>
                             </form>
                         </li>
                     </ul>
-                </span>
-            </div>
-        </div>
+                </div>
 
-        <div class="w-100 d-flex align-items-center pb-2">
-            <a class="navbar-brand fs-3 fw-bold me-4" th:href="@{/web/books}">BookOk</a>
-
-            <form class="flex-grow-1 d-flex bg-white rounded p-1" th:action="@{/web/books}" method="get">
-                <input class="form-control border-0 shadow-none" type="search" name="keyword"
-                       th:value="${keyword}" placeholder="Tìm trong Nhà Sách Online">
-                <button class="btn btn-danger px-4" type="submit" style="background-color: #fb5533;">
-                    <i class="bi bi-search"></i> Tìm kiếm
-                </button>
-            </form>
-
-            <div class="ms-4 position-relative">
-                <a href="#" class="text-white fs-4"><i class="bi bi-cart3"></i></a>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-white text-danger" style="font-size: 0.6rem;">
-                    0
-                </span>
+                <div sec:authorize="isAnonymous()">
+                    <a th:href="@{/login}" class="text-white text-decoration-none small fw-bold">Đăng nhập</a>
+                </div>
             </div>
         </div>
     </div>
-</nav>
+</header>
+</body>
+</html>
