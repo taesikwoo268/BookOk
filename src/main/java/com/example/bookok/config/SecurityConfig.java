@@ -1,16 +1,26 @@
 package com.example.bookok.config;
 
+import com.example.bookok.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtFilter;
+
+    // Sử dụng Constructor Injection tránh vòng lặp Bean (Circular Dependency)
+    public SecurityConfig(JwtAuthenticationFilter jwtFilter) {
+        this.jwtFilter = jwtFilter;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -18,33 +28,24 @@ public class SecurityConfig {
     }
 
     @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/**")
-                )
-
-                // 2. Cấu hình phân quyền
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // API giỏ hàng bắt buộc phải đăng nhập (để lấy được Principal)
-                        .requestMatchers("/api/cart/**").authenticated()
+                        .requestMatchers("/api/auth/**").permitAll() // Cho phép truy cập API login công khai
+                        .requestMatchers("/api/books/**").permitAll()
+//                        .requestMatchers("/api/cart/**").permitAll()
+                        .anyRequest().authenticated()
+                );
 
-                        // Các trang web (giỏ hàng, mua hàng...) bắt buộc đăng nhập
-                        .requestMatchers("/web/cart/**").authenticated()
-
-                        // Mở cửa cho trang chủ, đăng nhập, CSS, JS
-                        .requestMatchers("/web/books/**", "/login", "/css/**", "/js/**").permitAll()
-                        .anyRequest().permitAll()
-                )
-
-                // 3. Cấu hình đăng nhập Web (Form)
-                .formLogin(form -> form
-                        .permitAll()
-                )
-
-                // 4. Cấu hình đăng nhập API (Basic Auth)
-                // Đây là bước giúp Postman truyền được User vào Principal
-                .httpBasic(Customizer.withDefaults());
+        // Chặn JWT Filter trước khi Spring check Username/Password mặc định
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
